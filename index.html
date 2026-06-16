@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Prospección OCS 26">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Prospección OCS 26 - Vendomática Lima">
+<title>Prospección OCS 26</title>
+
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Prospeccion%20OCS%2026%22%2C%22short_name%22%3A%22OCS%2026%22%2C%22description%22%3A%22Prospeccion%20de%20maquinas%20de%20cafe%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230F6E56%22%2C%22orientation%22%3A%22portrait%22%7D">
+
+<!-- Icono como SVG inline en base64 para iOS -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMEY2RTU2Ii8+PHRleHQgeD0iOTAiIHk9IjExNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjkwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlY8L3RleHQ+PC9zdmc+">
+
+<style>
+  :root {
+    --green: #0F6E56;
+    --green-light: #1D9E75;
+    --green-bg: #E1F5EE;
+    --green-dark: #085041;
+    --text: #1a1a1a;
+    --text2: #666;
+    --text3: #999;
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #efefef;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.20);
+    --radius: 12px;
+    --warn-bg: #FFF8E7;
+    --warn: #996600;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text: #f0f0f0;
+      --text2: #aaa;
+      --text3: #666;
+      --bg: #1c1c1e;
+      --bg2: #2c2c2e;
+      --bg3: #3a3a3c;
+      --border: rgba(255,255,255,0.12);
+      --border2: rgba(255,255,255,0.22);
+      --green-bg: #0a3d2b;
+      --warn-bg: #3a2e00;
+      --warn: #ffcc44;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg2);
+    color: var(--text);
+    min-height: 100vh;
+    overscroll-behavior: none;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--green);
+    padding: 48px 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #fff; display: flex; align-items: center;
+    justify-content: center; font-size: 15px; font-weight: 700; color: var(--green);
+  }
+  .topbar-title { color: #fff; font-size: 16px; font-weight: 600; }
+  .topbar-sub { color: #9FE1CB; font-size: 11px; margin-top: 1px; }
+  .topbar-reset {
+    background: rgba(255,255,255,0.18); border: none; border-radius: 8px;
+    color: #fff; font-size: 12px; padding: 6px 10px; cursor: pointer;
+  }
+
+  /* TAB BAR */
+  .tabbar {
+    display: flex;
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 82px;
+    z-index: 99;
+  }
+  .tab {
+    flex: 1; padding: 10px 2px 8px; border: none;
+    background: none; color: var(--text2); font-size: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    border-bottom: 2.5px solid transparent; cursor: pointer; transition: all 0.15s;
+  }
+  .tab .ti { font-size: 20px; }
+  .tab.on { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+
+  /* PANELS */
+  .panel { display: none; padding: 16px 14px 100px; }
+  .panel.on { display: block; }
+
+  /* TIPOGRAFÍA */
+  .slabel {
+    font-size: 11px; font-weight: 600; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin: 16px 0 8px;
+  }
+  .slabel:first-child { margin-top: 0; }
+
+  /* INPUTS */
+  input[type=text], input[type=tel], input[type=email], input[type=number] {
+    width: 100%; padding: 13px 14px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius);
+    font-size: 16px; background: var(--bg); color: var(--text);
+    margin-bottom: 10px; -webkit-appearance: none;
+  }
+  input:focus { outline: none; border-color: var(--green); }
+
+  /* GRID 2 COL */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+  /* STAT CARDS */
+  .stat {
+    background: var(--bg2); border-radius: var(--radius); padding: 12px 14px;
+  }
+  .stat-lbl { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .stat-val { font-size: 22px; font-weight: 600; color: var(--text); }
+  .stat-unit { font-size: 12px; color: var(--text2); margin-left: 2px; }
+
+  /* CHIPS */
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+  .chip {
+    padding: 9px 15px; border: 0.5px solid var(--border2); border-radius: 22px;
+    font-size: 14px; cursor: pointer; background: var(--bg); color: var(--text);
+    transition: all 0.12s; display: flex; align-items: center; gap: 5px;
+  }
+  .chip.on { background: var(--green-bg); border-color: var(--green-light); color: var(--green-dark); font-weight: 600; }
+
+  /* DISCOUNT BAR */
+  .disc-bar {
+    background: var(--green-bg); border-radius: var(--radius);
+    padding: 11px 14px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .disc-lbl { font-size: 13px; color: var(--green-dark); font-weight: 600; }
+  .disc-btns { display: flex; gap: 6px; }
+  .dchip {
+    padding: 6px 13px; border-radius: 20px; border: 1px solid var(--green-light);
+    font-size: 13px; cursor: pointer; background: var(--bg); color: var(--green);
+    font-weight: 600; transition: all 0.12s;
+  }
+  .dchip.on { background: var(--green); color: #fff; border-color: var(--green); }
+
+  /* MÁQUINAS */
+  .maq-card {
+    border: 0.5px solid var(--border); border-radius: var(--radius);
+    padding: 13px 14px; margin-bottom: 9px; cursor: pointer;
+    background: var(--bg); position: relative; transition: all 0.12s;
+  }
+  .maq-card.on { border: 2.5px solid var(--green); background: var(--green-bg); }
+  .maq-card.dim { opacity: 0.35; pointer-events: none; }
+  .maq-card:active { opacity: 0.75; }
+  .maq-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .maq-precio { font-size: 14px; color: var(--green); margin-top: 3px; }
+  .maq-min { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .maq-badge {
+    position: absolute; top: 11px; right: 11px;
+    font-size: 10px; padding: 3px 9px; border-radius: 20px;
+    background: var(--green-bg); color: var(--green-dark); font-weight: 600;
+  }
+  .maq-badge.no { background: var(--warn-bg); color: var(--warn); }
+  .maq-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .maq-tag {
+    font-size: 10px; padding: 3px 9px; border-radius: 20px;
+    background: var(--bg2); color: var(--text2);
+  }
+  .orig { font-size: 11px; text-decoration: line-through; color: var(--text3); margin-right: 4px; }
+  .dtag {
+    font-size: 10px; padding: 2px 6px; border-radius: 10px;
+    background: var(--green-bg); color: var(--green-dark); margin-left: 4px;
+  }
+
+  /* INSUMOS */
+  .ins-row {
+    display: flex; align-items: center; padding: 12px 0;
+    border-bottom: 0.5px solid var(--border); gap: 10px;
+  }
+  .ins-row:last-child { border-bottom: none; }
+  .ins-chk { width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+  .ins-info { flex: 1; min-width: 0; }
+  .ins-name { font-size: 14px; color: var(--text); line-height: 1.35; }
+  .ins-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .qty-wrap { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+  .qbtn {
+    width: 30px; height: 30px; border-radius: 9px;
+    border: 0.5px solid var(--border2); background: var(--bg);
+    cursor: pointer; font-size: 18px; display: flex;
+    align-items: center; justify-content: center; color: var(--text);
+  }
+  .qbtn:active { background: var(--bg2); }
+  .qnum { font-size: 15px; font-weight: 600; min-width: 24px; text-align: center; color: var(--text); }
+  .ins-tot { font-size: 13px; font-weight: 600; color: var(--green); min-width: 56px; text-align: right; flex-shrink: 0; }
+
+  /* TOTALES */
+  .totblock {
+    background: var(--bg2); border-radius: var(--radius);
+    padding: 13px 15px; margin-top: 14px;
+  }
+  .tot-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; font-size: 14px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .tot-row:last-child { border-bottom: none; }
+  .tl { color: var(--text2); }
+  .tv { font-weight: 600; color: var(--text); }
+  .tot-final {
+    font-size: 17px; padding-top: 10px; margin-top: 6px;
+    border-top: 1px solid var(--border2) !important;
+  }
+
+  /* BOTONES */
+  .btn-main {
+    width: 100%; padding: 15px; border: none; border-radius: var(--radius);
+    background: var(--green); color: #fff; font-size: 16px; font-weight: 600;
+    cursor: pointer; margin-top: 10px; display: flex;
+    align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-main:active { opacity: 0.82; }
+  .btn-out {
+    width: 100%; padding: 14px; border: 0.5px solid var(--border2);
+    border-radius: var(--radius); background: var(--bg); color: var(--text);
+    font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px;
+  }
+
+  /* COTIZACIÓN */
+  .cot-empresa { font-size: 18px; font-weight: 700; text-align: center; color: var(--text); margin-bottom: 2px; }
+  .cot-fecha { font-size: 12px; color: var(--text2); text-align: center; margin-bottom: 14px; }
+  .cot-block { background: var(--bg2); border-radius: var(--radius); padding: 13px 15px; margin-bottom: 10px; }
+  .cot-row {
+    display: flex; justify-content: space-between;
+    padding: 5px 0; font-size: 14px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .cot-row:last-child { border-bottom: none; }
+  .cl { color: var(--text2); }
+  .cv { font-weight: 600; color: var(--text); text-align: right; max-width: 60%; }
+
+  /* SHARE */
+  .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .sbtn {
+    padding: 14px 8px; border-radius: var(--radius);
+    border: 0.5px solid var(--border2); background: var(--bg);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px; color: var(--text);
+  }
+  .sbtn .ti { font-size: 24px; }
+  .sbtn:active { opacity: 0.78; }
+  .sbtn.wsp { background: #25D366; color: #fff; border-color: #25D366; }
+  .sbtn.mail { background: #E6F1FB; color: #185FA5; border-color: transparent; }
+  @media (prefers-color-scheme: dark) {
+    .sbtn.mail { background: #0c2a44; color: #85b7eb; }
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%;
+    transform: translateX(-50%);
+    background: var(--green); color: #fff;
+    padding: 11px 22px; border-radius: 22px;
+    font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    background: var(--green-bg); border: 1px solid var(--green-light);
+    border-radius: var(--radius); padding: 13px 14px; margin-bottom: 14px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .install-banner.hidden { display: none; }
+  .ib-icon { font-size: 22px; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+  .ib-text { flex: 1; }
+  .ib-title { font-size: 14px; font-weight: 600; color: var(--green-dark); }
+  .ib-sub { font-size: 12px; color: var(--green-dark); margin-top: 3px; opacity: 0.85; line-height: 1.4; }
+  .ib-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text2); flex-shrink: 0; }
+
+  /* WARN BOX */
+  .warn-box {
+    background: var(--warn-bg); border-radius: var(--radius);
+    padding: 11px 13px; font-size: 13px; color: var(--warn);
+    margin-bottom: 12px; display: flex; gap: 8px; align-items: flex-start;
+  }
+
+  /* SECCIÓN INFO GRANO */
+  .grano-info {
+    background: var(--bg2); border-radius: var(--radius);
+    padding: 11px 13px; margin-bottom: 12px; font-size: 12px; color: var(--text2);
+    border-left: 3px solid var(--green-light);
+  }
+</style>
+
+<!-- Tabler Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.9.0/dist/tabler-icons.min.css">
+
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">V</div>
+    <div>
+      <div class="topbar-title">Prospección OCS 26</div>
+      <div class="topbar-sub">Prospección en campo</div>
+    </div>
+  </div>
+  <button class="topbar-reset" onclick="confirmReset()">Nueva</button>
+</div>
+
+<div class="tabbar">
+  <button class="tab on" onclick="goTab(0)" id="t0">
+    <i class="ti ti-building"></i>Cliente
+  </button>
+  <button class="tab" onclick="goTab(1)" id="t1">
+    <i class="ti ti-device-desktop"></i>Máquina
+  </button>
+  <button class="tab" onclick="goTab(2)" id="t2">
+    <i class="ti ti-package"></i>Insumos
+  </button>
+  <button class="tab" onclick="goTab(3)" id="t3">
+    <i class="ti ti-file-text"></i>Cotización
+  </button>
+</div>
+
+<!-- ======================== TAB 0: CLIENTE ======================== -->
+<div class="panel on" id="p0">
+
+  <div class="install-banner" id="install-banner">
+    <span class="ib-icon"><i class="ti ti-download"></i></span>
+    <div class="ib-text">
+      <div class="ib-title">Instalar en tu celular</div>
+      <div class="ib-sub" id="install-tip">Toca el menú del navegador y selecciona "Añadir a pantalla de inicio"</div>
+    </div>
+    <button class="ib-close" onclick="document.getElementById('install-banner').classList.add('hidden')">✕</button>
+  </div>
+
+  <div class="slabel">Datos del cliente</div>
+  <input type="text" id="f_empresa" placeholder="Nombre de empresa" oninput="upd()">
+  <input type="text" id="f_contacto" placeholder="Nombre del contacto">
+  <input type="tel" id="f_tel" placeholder="Teléfono / WhatsApp" inputmode="tel">
+  <input type="email" id="f_email" placeholder="Correo electrónico" inputmode="email">
+
+  <div class="slabel">Consumo estimado</div>
+  <div class="g2">
+    <div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Colaboradores</div>
+      <input type="number" id="f_colab" value="80" min="1" oninput="upd()" inputmode="numeric">
+    </div>
+    <div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:5px">Días al mes</div>
+      <input type="number" id="f_dias" value="20" min="1" max="31" oninput="upd()" inputmode="numeric">
+    </div>
+  </div>
+  <div class="g2">
+    <div class="stat">
+      <div class="stat-lbl">Consumen café</div>
+      <div class="stat-val"><span id="s_cons">40</span><span class="stat-unit"> pers.</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-lbl">Tazas / mes</div>
+      <div class="stat-val"><span id="s_tazas">800</span><span class="stat-unit"> tazas</span></div>
+    </div>
+  </div>
+
+  <div class="slabel">Tipo de bebida</div>
+  <div class="chips">
+    <div class="chip" id="tc_cafe" onclick="selTipo('cafe')">
+      <i class="ti ti-coffee" style="font-size:16px"></i> Solo café
+    </div>
+    <div class="chip" id="tc_combo" onclick="selTipo('combo')">
+      <i class="ti ti-cups" style="font-size:16px"></i> Café + combinaciones
+    </div>
+    <div class="chip" id="tc_capsula" onclick="selTipo('capsula')">
+      <i class="ti ti-circle-dot" style="font-size:16px"></i> Cápsulas Lavazza
+    </div>
+  </div>
+
+  <div class="slabel">Tipo de grano</div>
+  <div class="chips">
+    <div class="chip" id="tg_alto" onclick="selGrano('alto')">Altomayo</div>
+    <div class="chip" id="tg_lav" onclick="selGrano('lav')">Lavazza Vending</div>
+    <div class="chip" id="tg_caf" onclick="selGrano('caf')">Cafetal 100% arábica</div>
+  </div>
+
+  <button class="btn-main" onclick="goTab(1)">
+    <i class="ti ti-arrow-right"></i> Ver máquinas recomendadas
+  </button>
+</div>
+
+<!-- ======================== TAB 1: MÁQUINA ======================== -->
+<div class="panel" id="p1">
+
+  <div class="slabel">Descuento en máquina</div>
+  <div class="disc-bar">
+    <div class="disc-lbl">Precio mensual</div>
+    <div class="disc-btns">
+      <div class="dchip on" id="dm0" onclick="selDescMaq(0)">Lista</div>
+      <div class="dchip" id="dm2" onclick="selDescMaq(2)">−2%</div>
+      <div class="dchip" id="dm4" onclick="selDescMaq(4)">−4%</div>
+    </div>
+  </div>
+
+  <div id="maq-list"></div>
+
+  <button class="btn-main" onclick="goTab(2)">
+    <i class="ti ti-arrow-right"></i> Elegir insumos
+  </button>
+</div>
+
+<!-- ======================== TAB 2: INSUMOS ======================== -->
+<div class="panel" id="p2">
+
+  <div class="slabel">Descuento en insumos</div>
+  <div class="disc-bar">
+    <div class="disc-lbl">Precio productos</div>
+    <div class="disc-btns">
+      <div class="dchip on" id="di0" onclick="selDescIns(0)">Lista</div>
+      <div class="dchip" id="di2" onclick="selDescIns(2)">−2%</div>
+      <div class="dchip" id="di4" onclick="selDescIns(4)">−4%</div>
+    </div>
+  </div>
+
+  <div id="ins-warn"></div>
+  <div id="ins-list"></div>
+  <div id="ins-totales"></div>
+
+  <button class="btn-main" onclick="goTab(3)">
+    <i class="ti ti-file-text"></i> Ver cotización final
+  </button>
+</div>
+
+<!-- ======================== TAB 3: COTIZACIÓN ======================== -->
+<div class="panel" id="p3">
+  <div class="cot-empresa" id="co_emp">—</div>
+  <div class="cot-fecha" id="co_fecha"></div>
+  <div id="co-body"></div>
+
+  <div class="share-grid">
+    <button class="sbtn wsp" onclick="doWsp()">
+      <i class="ti ti-brand-whatsapp"></i>WhatsApp
+    </button>
+    <button class="sbtn mail" onclick="doMail()">
+      <i class="ti ti-mail"></i>Correo
+    </button>
+    <button class="sbtn" onclick="doCopy()">
+      <i class="ti ti-copy"></i>Copiar
+    </button>
+    <button class="sbtn" onclick="window.print()">
+      <i class="ti ti-printer"></i>Imprimir
+    </button>
+  </div>
+
+  <button class="btn-out" onclick="confirmReset()">Nueva prospección</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATOS ───────────────────────────────────────────────
+const MAQUINAS = [
+  { id:'koro',    n:'Koro Prime',    p:500,  min:500,  tipos:['cafe','combo'],   ins:['CAFE','CHOCOLATE','LACTEA'] },
+  { id:'kometa',  n:'Kometa',        p:700,  min:625,  tipos:['cafe','combo'],   ins:['CAFE','CHOCOLATE','LACTEA'] },
+  { id:'krea',    n:'Krea',          p:1100, min:1125, tipos:['cafe','combo'],   ins:['CAFE','CHOCOLATE','LACTEA','TE'] },
+  { id:'aulikaO', n:'Aulika Office', p:600,  min:500,  tipos:['cafe'],           ins:['CAFE'] },
+  { id:'aulikaG', n:'Aulika G',      p:212,  min:250,  tipos:['cafe'],           ins:['CAFE'] },
+  { id:'lirikaG', n:'Lirika Plus G', p:212,  min:250,  tipos:['cafe'],           ins:['CAFE'] },
+  { id:'lb1150',  n:'LB 1150',       p:228,  min:100,  tipos:['capsula'],        ins:['CAPSULA'] },
+];
+
+const GRANOS = {
+  alto: { sap:'16008', n:'Café Altomayo tostado 0.5 kg',   p:44.20,  tpb:62,  gr:8 },
+  lav:  { sap:'15121', n:'Café Vending Lavazza 1.0 kg',    p:127.12, tpb:125, gr:8 },
+  caf:  { sap:'15991', n:'Café Cafetal grano 0.5 kg',      p:48.60,  tpb:62,  gr:8 },
+};
+
+const INSUMOS = [
+  { id:'choc', sap:'15126', n:'Chocolate Qunuq 0.5 kg',         p:19.49, tpb:22,  req:['CHOCOLATE'] },
+  { id:'lact', sap:'15129', n:'Mezcla láctea Qunuq 0.5 kg',     p:23.72, tpb:28,  req:['LACTEA'] },
+  { id:'te',   sap:'15131', n:'Té con limón Qunuq 0.5 kg',      p:22.88, tpb:15,  req:['TE'] },
+  { id:'azbl', sap:'15379', n:'Azúcar blanca Sucden 1.0 kg',    p:5.08,  tpb:0,   req:[] },
+  { id:'azru', sap:'15904', n:'Stick azúcar rubia (100 uds)',    p:6.00,  tpb:0,   req:[] },
+  { id:'stev', sap:'15905', n:'Stick stevia (100 uds)',          p:23.00, tpb:0,   req:[] },
+  { id:'vaso', sap:'116033',n:'Vaso Polybord 7 oz (50 uds)',     p:9.00,  tpb:0,   req:[] },
+  { id:'pal',  sap:'116022',n:'Paletina madera 11.4 cm (70 uds)',p:2.80,  tpb:0,   req:[] },
+];
+
+const CAPSULAS = [
+  { id:'cap1', sap:'15112', n:'Cápsula Blue Té al Limón 8 gr',       p:2.28 },
+  { id:'cap2', sap:'15113', n:'Cápsula Blue Espresso Descaf 8 gr',    p:2.28 },
+  { id:'cap3', sap:'15114', n:'Cápsula Blue Espresso Dolce 8 gr',     p:2.28 },
+  { id:'cap4', sap:'15115', n:'Cápsula Blue Espresso Intenso 8 gr',   p:2.28 },
+  { id:'cap5', sap:'15116', n:'Cápsula Blue Espresso Tierra 8 gr',    p:2.28 },
+];
+
+// ─── ESTADO ──────────────────────────────────────────────
+let S = { tipo:null, grano:null, maq:null, descMaq:0, descIns:0, qty:{}, ena:{}, tazas:800, colab:80, dias:20 };
+
+// ─── UTILIDADES ──────────────────────────────────────────
+function pd(p, pct) { return p * (1 - pct / 100); }
+function fmt(n) { return 'S/ ' + n.toFixed(2); }
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function upd() {
+  const c = parseInt(document.getElementById('f_colab').value) || 0;
+  const d = parseInt(document.getElementById('f_dias').value) || 0;
+  S.colab = c; S.dias = d;
+  const cons = Math.round(c * 0.5);
+  S.tazas = cons * d;
+  document.getElementById('s_cons').textContent = cons;
+  document.getElementById('s_tazas').textContent = S.tazas;
+}
+
+function selTipo(t) {
+  S.tipo = t; S.maq = null;
+  document.querySelectorAll('.chip[id^="tc_"]').forEach(c => c.classList.remove('on'));
+  document.getElementById('tc_' + t).classList.add('on');
+}
+
+function selGrano(g) {
+  S.grano = g;
+  document.querySelectorAll('.chip[id^="tg_"]').forEach(c => c.classList.remove('on'));
+  document.getElementById('tg_' + g).classList.add('on');
+}
+
+function selDescMaq(v) {
+  S.descMaq = v;
+  ['dm0','dm2','dm4'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('dm' + v).classList.add('on');
+  renderMaq();
+}
+
+function selDescIns(v) {
+  S.descIns = v;
+  ['di0','di2','di4'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('di' + v).classList.add('on');
+  renderIns();
+}
+
+function selMaq(id) {
+  S.maq = id;
+  renderMaq();
+}
+
+// ─── RENDER MÁQUINAS ─────────────────────────────────────
+function renderMaq() {
+  const el = document.getElementById('maq-list');
+  el.innerHTML = '';
+  MAQUINAS.forEach(m => {
+    const fits = !S.tipo || m.tipos.includes(S.tipo);
+    const enough = S.tazas >= m.min;
+    const pf = pd(m.p, S.descMaq);
+    const hasD = S.descMaq > 0;
+
+    const div = document.createElement('div');
+    div.className = 'maq-card' + (S.maq === m.id ? ' on' : '') + (fits ? '' : ' dim');
+    div.onclick = () => { selMaq(m.id); };
+
+    const badge = fits
+      ? (enough ? '<span class="maq-badge">✓ Recomendado</span>' : '<span class="maq-badge no">Pocas tazas</span>')
+      : '';
+
+    const precioHTML = hasD
+      ? `<span class="orig">${fmt(m.p)}</span><strong style="color:var(--green)">${fmt(pf)}</strong><span class="dtag">−${S.descMaq}%</span>`
+      : `<strong style="color:var(--green)">${fmt(m.p)}</strong>`;
+
+    const tags = m.ins.map(i => `<span class="maq-tag">${i}</span>`).join('');
+
+    div.innerHTML = `
+      ${badge}
+      <div class="maq-name">${m.n}</div>
+      <div class="maq-precio">${precioHTML} <span style="font-size:11px;color:var(--text2)">/mes sin IGV</span></div>
+      <div class="maq-min">Mínimo ${m.min} tazas · Estimado: ${S.tazas} tazas/mes</div>
+      <div class="maq-tags">${tags}</div>`;
+    el.appendChild(div);
+  });
+}
+
+// ─── RENDER INSUMOS ──────────────────────────────────────
+function renderIns() {
+  const maq = MAQUINAS.find(m => m.id === S.maq);
+  const warn = document.getElementById('ins-warn');
+
+  if (!maq) {
+    warn.innerHTML = '<div class="warn-box"><i class="ti ti-alert-triangle"></i><span>Selecciona una máquina primero.</span></div>';
+    document.getElementById('ins-list').innerHTML = '';
+    document.getElementById('ins-totales').innerHTML = '';
+    return;
+  }
+  warn.innerHTML = '';
+
+  const isCap = S.tipo === 'capsula';
+  const g = S.grano ? GRANOS[S.grano] : GRANOS['alto'];
+  let html = '';
+
+  if (!isCap) {
+    const kgN = (S.tazas * g.gr) / 1000;
+    const bolsas = g.sap === '15121' ? Math.ceil(kgN) : Math.ceil(kgN / 0.5);
+    if (S.qty['grano'] === undefined) S.qty['grano'] = bolsas;
+    if (S.ena['grano'] === undefined) S.ena['grano'] = true;
+    const q = S.qty['grano'];
+    const pf = pd(g.p, S.descIns);
+    const hasD = S.descIns > 0;
+    const pHTML = hasD
+      ? `<span class="orig">${fmt(g.p)}</span>${fmt(pf)}`
+      : fmt(g.p);
+
+    html += `<div class="ins-row">
+      <input type="checkbox" class="ins-chk" ${S.ena['grano'] ? 'checked' : ''} onchange="togEna('grano',this.checked)">
+      <div class="ins-info">
+        <div class="ins-name" style="font-weight:600">${g.n}</div>
+        <div class="ins-sub">SAP ${g.sap} · ${pHTML} · ~${g.tpb} tazas/bolsa</div>
+      </div>
+      <div class="qty-wrap">
+        <button class="qbtn" onclick="adjQ('grano',-1)">−</button>
+        <span class="qnum" id="q_grano">${q}</span>
+        <button class="qbtn" onclick="adjQ('grano',1)">+</button>
+      </div>
+      <div class="ins-tot" id="tot_grano">${fmt(q * pf)}</div>
+    </div>`;
+
+    INSUMOS.forEach(e => {
+      if (e.req.length > 0 && !e.req.some(r => maq.ins.includes(r))) return;
+      if (S.ena[e.id] === undefined) S.ena[e.id] = e.req.length > 0 && e.req.some(r => maq.ins.includes(r));
+      if (S.qty[e.id] === undefined) S.qty[e.id] = 1;
+      const q2 = S.qty[e.id];
+      const pf2 = pd(e.p, S.descIns);
+      const hasD2 = S.descIns > 0;
+      const pH2 = hasD2
+        ? `<span class="orig">${fmt(e.p)}</span>${fmt(pf2)}`
+        : fmt(e.p);
+
+      html += `<div class="ins-row">
+        <input type="checkbox" class="ins-chk" ${S.ena[e.id] ? 'checked' : ''} onchange="togEna('${e.id}',this.checked)">
+        <div class="ins-info">
+          <div class="ins-name">${e.n}</div>
+          <div class="ins-sub">SAP ${e.sap} · ${pH2}${e.tpb ? ' · ~' + e.tpb + ' tazas/bolsa' : ''}</div>
+        </div>
+        <div class="qty-wrap">
+          <button class="qbtn" onclick="adjQ('${e.id}',-1)">−</button>
+          <span class="qnum" id="q_${e.id}">${q2}</span>
+          <button class="qbtn" onclick="adjQ('${e.id}',1)">+</button>
+        </div>
+        <div class="ins-tot" id="tot_${e.id}">${fmt(q2 * pf2)}</div>
+      </div>`;
+    });
+
+  } else {
+    CAPSULAS.forEach(c => {
+      if (S.ena[c.id] === undefined) S.ena[c.id] = true;
+      if (S.qty[c.id] === undefined) S.qty[c.id] = 10;
+      const q3 = S.qty[c.id];
+      const pf3 = pd(c.p, S.descIns);
+      const hasD3 = S.descIns > 0;
+      const pH3 = hasD3
+        ? `<span class="orig">${fmt(c.p)}</span>${fmt(pf3)}`
+        : fmt(c.p);
+
+      html += `<div class="ins-row">
+        <input type="checkbox" class="ins-chk" ${S.ena[c.id] ? 'checked' : ''} onchange="togEna('${c.id}',this.checked)">
+        <div class="ins-info">
+          <div class="ins-name">${c.n}</div>
+          <div class="ins-sub">SAP ${c.sap} · ${pH3}</div>
+        </div>
+        <div class="qty-wrap">
+          <button class="qbtn" onclick="adjQ('${c.id}',-1)">−</button>
+          <span class="qnum" id="q_${c.id}">${q3}</span>
+          <button class="qbtn" onclick="adjQ('${c.id}',1)">+</button>
+        </div>
+        <div class="ins-tot" id="tot_${c.id}">${fmt(q3 * pf3)}</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('ins-list').innerHTML = html;
+  calcTotales();
+}
+
+function adjQ(id, delta) {
+  S.qty[id] = Math.max(0, (S.qty[id] || 0) + delta);
+  const span = document.getElementById('q_' + id);
+  if (span) span.textContent = S.qty[id];
+
+  let precio = 0;
+  if (id === 'grano') {
+    const g = S.grano ? GRANOS[S.grano] : GRANOS['alto'];
+    precio = g.p;
+  } else {
+    const e = INSUMOS.find(x => x.id === id) || CAPSULAS.find(x => x.id === id);
+    if (e) precio = e.p;
+  }
+  const pf = pd(precio, S.descIns);
+  const tot = document.getElementById('tot_' + id);
+  if (tot) tot.textContent = fmt(S.qty[id] * pf);
+  calcTotales();
+}
+
+function togEna(id, v) {
+  S.ena[id] = v;
+  calcTotales();
+}
+
+// ─── ITEMS ACTIVOS ────────────────────────────────────────
+function getItems() {
+  const maq = MAQUINAS.find(m => m.id === S.maq);
+  const isCap = S.tipo === 'capsula';
+  const g = S.grano ? GRANOS[S.grano] : GRANOS['alto'];
+  let items = [];
+
+  if (!isCap) {
+    if (S.ena['grano']) items.push({ n: g.n, sap: g.sap, qty: S.qty['grano'] || 0, p: pd(g.p, S.descIns), po: g.p });
+    INSUMOS.forEach(e => {
+      if (e.req.length > 0 && maq && !e.req.some(r => maq.ins.includes(r))) return;
+      if (S.ena[e.id]) items.push({ n: e.n, sap: e.sap, qty: S.qty[e.id] || 0, p: pd(e.p, S.descIns), po: e.p });
+    });
+  } else {
+    CAPSULAS.forEach(c => {
+      if (S.ena[c.id]) items.push({ n: c.n, sap: c.sap, qty: S.qty[c.id] || 0, p: pd(c.p, S.descIns), po: c.p });
+    });
+  }
+  return items;
+}
+
+function getTotales() {
+  const maq = MAQUINAS.find(m => m.id === S.maq);
+  const items = getItems();
+  const tProd = items.reduce((s, i) => s + i.qty * i.p, 0);
+  const maqP = maq ? pd(maq.p, S.descMaq) : 0;
+  const sinIgv = tProd + maqP;
+  const igv = sinIgv * 0.18;
+  const conIgv = sinIgv + igv;
+  const ptaza = S.tazas > 0 ? sinIgv / S.tazas : 0;
+  return { items, tProd, maqP, sinIgv, igv, conIgv, ptaza, maq };
+}
+
+function calcTotales() {
+  const { tProd, maqP, sinIgv, igv, conIgv, ptaza, maq } = getTotales();
+  document.getElementById('ins-totales').innerHTML = `
+    <div class="totblock">
+      <div class="tot-row"><span class="tl">Subtotal productos</span><span class="tv">${fmt(tProd)}</span></div>
+      <div class="tot-row"><span class="tl">Servicio ${maq ? maq.n : '—'}</span><span class="tv">${fmt(maqP)}</span></div>
+      <div class="tot-row"><span class="tl">Subtotal sin IGV</span><span class="tv">${fmt(sinIgv)}</span></div>
+      <div class="tot-row"><span class="tl">IGV 18%</span><span class="tv">${fmt(igv)}</span></div>
+      <div class="tot-row tot-final">
+        <span class="tl" style="font-weight:600;color:var(--text)">Total con IGV</span>
+        <span class="tv" style="color:var(--green);font-size:18px">${fmt(conIgv)}</span>
+      </div>
+      <div class="tot-row">
+        <span class="tl">Precio / taza (sin IGV)</span>
+        <span class="tv" style="color:var(--green)">${fmt(ptaza)}</span>
+      </div>
+    </div>`;
+}
+
+// ─── RENDER COTIZACIÓN ────────────────────────────────────
+function renderCot() {
+  const { items, tProd, maqP, sinIgv, igv, conIgv, ptaza, maq } = getTotales();
+  const empresa = document.getElementById('f_empresa').value || 'Cliente';
+  const contacto = document.getElementById('f_contacto').value || '';
+  const tel = document.getElementById('f_tel').value || '';
+  const email = document.getElementById('f_email').value || '';
+  const tipoL = { cafe: 'Solo café', combo: 'Café + combinaciones', capsula: 'Cápsulas Lavazza Blue' }[S.tipo] || '—';
+  const granoL = S.grano ? { alto: 'Altomayo', lav: 'Lavazza Vending', caf: 'Cafetal 100% arábica' }[S.grano] : '—';
+  const fecha = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const dMlbl = S.descMaq > 0 ? ` (−${S.descMaq}%)` : ' (precio lista)';
+  const dIlbl = S.descIns > 0 ? ` (−${S.descIns}%)` : ' (precio lista)';
+
+  document.getElementById('co_emp').textContent = empresa + (contacto ? ' — ' + contacto : '');
+  document.getElementById('co_fecha').textContent = fecha;
+
+  const prodRows = items.map(i =>
+    `<div class="cot-row"><span class="cl">${i.n} ×${i.qty}</span><span class="cv">${fmt(i.qty * i.p)}</span></div>`
+  ).join('');
+
+  document.getElementById('co-body').innerHTML = `
+    <div class="cot-block">
+      ${contacto ? `<div class="cot-row"><span class="cl">Contacto</span><span class="cv">${contacto}</span></div>` : ''}
+      ${tel ? `<div class="cot-row"><span class="cl">Teléfono</span><span class="cv">${tel}</span></div>` : ''}
+      ${email ? `<div class="cot-row"><span class="cl">Correo</span><span class="cv">${email}</span></div>` : ''}
+      <div class="cot-row"><span class="cl">Colaboradores</span><span class="cv">${S.colab} · ${S.tazas} tazas/mes</span></div>
+      <div class="cot-row"><span class="cl">Tipo</span><span class="cv">${tipoL}</span></div>
+      ${S.tipo !== 'capsula' ? `<div class="cot-row"><span class="cl">Grano</span><span class="cv">${granoL}</span></div>` : ''}
+      <div class="cot-row"><span class="cl">Máquina</span><span class="cv">${maq ? maq.n : '—'}${dMlbl}</span></div>
+    </div>
+    <div class="cot-block">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">
+        Insumos${dIlbl}
+      </div>
+      ${prodRows}
+      <div class="cot-row"><span class="cl">Servicio máquina</span><span class="cv">${fmt(maqP)}</span></div>
+      <div class="cot-row"><span class="cl">Subtotal sin IGV</span><span class="cv">${fmt(sinIgv)}</span></div>
+      <div class="cot-row"><span class="cl">IGV 18%</span><span class="cv">${fmt(igv)}</span></div>
+      <div class="cot-row" style="font-size:16px;padding:10px 0 4px">
+        <span class="cl" style="font-weight:700;color:var(--text)">Total con IGV</span>
+        <span class="cv" style="color:var(--green);font-size:20px">${fmt(conIgv)}</span>
+      </div>
+      <div class="cot-row">
+        <span class="cl">Precio / taza (sin IGV)</span>
+        <span class="cv" style="color:var(--green)">${fmt(ptaza)}</span>
+      </div>
+    </div>`;
+}
+
+// ─── TEXTO PARA COMPARTIR ────────────────────────────────
+function buildTxt() {
+  const { items, tProd, maqP, sinIgv, igv, conIgv, ptaza, maq } = getTotales();
+  const empresa = document.getElementById('f_empresa').value || 'Cliente';
+  const contacto = document.getElementById('f_contacto').value || '';
+  const tel = document.getElementById('f_tel').value || '';
+  const email = document.getElementById('f_email').value || '';
+  const tipoL = { cafe: 'Solo café', combo: 'Café + combinaciones', capsula: 'Cápsulas Lavazza Blue' }[S.tipo] || '—';
+  const granoL = S.grano ? { alto: 'Altomayo', lav: 'Lavazza Vending', caf: 'Cafetal 100% arábica' }[S.grano] : '—';
+  const fecha = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const dMlbl = S.descMaq > 0 ? ` (descuento −${S.descMaq}%)` : '';
+  const dIlbl = S.descIns > 0 ? ` (descuento −${S.descIns}%)` : '';
+
+  let t = `☕ COTIZACIÓN VENDOMÁTICA\n${fecha}\n\n`;
+  t += `🏢 Empresa: ${empresa}\n`;
+  if (contacto) t += `👤 Contacto: ${contacto}\n`;
+  if (tel) t += `📞 Tel: ${tel}\n`;
+  if (email) t += `✉️ Email: ${email}\n`;
+  t += `\n👥 Colaboradores: ${S.colab} · ${S.tazas} tazas/mes\n`;
+  t += `🎯 Tipo: ${tipoL}\n`;
+  if (S.tipo !== 'capsula') t += `☕ Grano: ${granoL}\n`;
+  t += `🖥️ Máquina: ${maq ? maq.n : '—'}${dMlbl}\n\n`;
+  t += `📦 INSUMOS${dIlbl}:\n`;
+  items.forEach(i => t += `  • ${i.n} ×${i.qty} = ${fmt(i.qty * i.p)}\n`);
+  t += `  • Servicio máquina: ${fmt(maqP)}\n\n`;
+  t += `💰 Sin IGV: ${fmt(sinIgv)}\n`;
+  t += `   IGV 18%: ${fmt(igv)}\n`;
+  t += `✅ TOTAL: ${fmt(conIgv)}\n`;
+  t += `☕ Precio/taza: ${fmt(ptaza)}\n\n`;
+  t += `Vendomática — Prospección OCS 26 — Lima, Perú\nwww.vendomatica.pe`;
+  return t;
+}
+
+// ─── COMPARTIR ────────────────────────────────────────────
+function doWsp() {
+  const tel = document.getElementById('f_tel').value.replace(/\D/g, '');
+  const enc = encodeURIComponent(buildTxt());
+  const url = tel ? `https://wa.me/51${tel}?text=${enc}` : `https://wa.me/?text=${enc}`;
+  window.open(url, '_blank');
+}
+
+function doMail() {
+  const empresa = document.getElementById('f_empresa').value || 'Cliente';
+  const email = document.getElementById('f_email').value || '';
+  const subj = encodeURIComponent('Prospección OCS 26 — Cotización Vendomática — ' + empresa);
+  const body = encodeURIComponent(buildTxt());
+  window.location.href = `mailto:${email}?subject=${subj}&body=${body}`;
+}
+
+function doCopy() {
+  const txt = buildTxt();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(() => showToast('¡Texto copiado!'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('¡Copiado!');
+  }
+}
+
+// ─── NAVEGACIÓN ───────────────────────────────────────────
+function goTab(n) {
+  if (n === 1) renderMaq();
+  if (n === 2) renderIns();
+  if (n === 3) renderCot();
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach((t, i) => { t.classList.remove('on'); if (i === n) t.classList.add('on'); });
+  document.getElementById('p' + n).classList.add('on');
+  window.scrollTo(0, 0);
+}
+
+function confirmReset() {
+  if (confirm('¿Iniciar nueva prospección? Se borrarán los datos actuales.')) resetAll();
+}
+
+function resetAll() {
+  S = { tipo: null, grano: null, maq: null, descMaq: 0, descIns: 0, qty: {}, ena: {}, tazas: 800, colab: 80, dias: 20 };
+  ['f_empresa','f_contacto','f_tel','f_email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_colab').value = 80;
+  document.getElementById('f_dias').value = 20;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  ['dm0','di0'].forEach(id => document.getElementById(id).classList.add('on'));
+  ['dm2','dm4','di2','di4'].forEach(id => document.getElementById(id).classList.remove('on'));
+  upd();
+  goTab(0);
+}
+
+// ─── INSTALL BANNER ──────────────────────────────────────
+function setupInstallBanner() {
+  const ua = navigator.userAgent;
+  const tip = document.getElementById('install-tip');
+  const banner = document.getElementById('install-banner');
+
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+  const isAndroid = /Android/.test(ua);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+
+  if (isStandalone) { banner.classList.add('hidden'); return; }
+
+  if (isIOS) {
+    tip.textContent = 'En Safari: toca el botón compartir ↑ y luego "Añadir a pantalla de inicio"';
+  } else if (isAndroid) {
+    tip.textContent = 'En Chrome: toca los tres puntos ⋮ y selecciona "Añadir a pantalla de inicio"';
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+upd();
+setupInstallBanner();
+</script>
+
+<style>
+@media print {
+  .topbar, .tabbar, #p0, #p1, #p2, .share-grid, .btn-main, .btn-out, .install-banner { display: none !important; }
+  #p3 { display: block !important; padding: 20px; }
+  body { background: #fff; color: #000; }
+  .cot-block { background: #f5f5f5 !important; border: 1px solid #ddd; break-inside: avoid; margin-bottom: 12px; }
+  .cot-empresa { font-size: 20px; }
+  .cot-row { font-size: 13px; }
+}
+</style>
+
+</body>
+</html>
