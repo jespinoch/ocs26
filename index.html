@@ -11,7 +11,10 @@
 <meta name="description" content="Prospección OCS 26 - Vendomática Lima">
 <title>Prospección OCS 26</title>
 
-<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Prospeccion%20OCS%2026%22%2C%22short_name%22%3A%22OCS%2026%22%2C%22description%22%3A%22Prospeccion%20de%20maquinas%20de%20cafe%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230F6E56%22%2C%22orientation%22%3A%22portrait%22%7D">
+<script>
+  const sqliteShortcutRoute = new URLSearchParams(location.search).get('vista') === 'datos';
+  document.write(`<link rel="manifest" href="${sqliteShortcutRoute ? 'sqlite.webmanifest' : 'app.webmanifest'}">`);
+</script>
 
 <!-- Icono como SVG inline en base64 para iOS -->
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMEY2RTU2Ii8+PHRleHQgeD0iOTAiIHk9IjExNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjkwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlY8L3RleHQ+PC9zdmc+">
@@ -356,6 +359,20 @@
   .sql-table tr:last-child td { border-bottom: 0; }
   .sql-empty { color: var(--text2); font-size: 12px; padding: 14px 4px; }
   .sql-note { color: var(--text2); font-size: 11px; line-height: 1.5; margin-top: 9px; }
+  .db-install-card {
+    margin-top: 18px; padding: 15px; border: 1px solid var(--green-light);
+    border-radius: var(--radius); background: var(--green-bg);
+  }
+  .db-install-card h3 { color: var(--green-dark); font-size: 14px; margin-bottom: 5px; }
+  .db-install-card p { color: var(--green-dark); font-size: 12px; line-height: 1.5; margin-bottom: 10px; }
+  .db-install-button {
+    width: 100%; border: 0; border-radius: 10px; background: var(--green);
+    color: #fff; font-size: 14px; font-weight: 600; padding: 12px; cursor: pointer;
+  }
+  .db-install-link {
+    display: block; color: var(--green-dark); font-size: 11px;
+    text-align: center; text-decoration: underline; margin-top: 10px;
+  }
   @media (max-width: 360px) {
     .tab { font-size: 9px; }
     .tab .ti { font-size: 18px; }
@@ -564,6 +581,12 @@ ORDER BY total DESC;</textarea>
   </div>
   <div class="sql-table-wrap" id="sql-table-wrap"><div class="sql-empty">Tu resultado aparecerá aquí.</div></div>
   <p class="sql-note">Prueba <code>SELECT * FROM prospectos;</code> o guarda una cotización desde su pantalla. Los cambios se guardan en este dispositivo.</p>
+  <div class="db-install-card" id="db-install-card">
+    <h3>☕ Un icono directo a SQLite</h3>
+    <p id="db-install-help">Crea un acceso directo en la pantalla de inicio para abrir el visor sin pasar por las otras pestañas.</p>
+    <button class="db-install-button" id="db-install-button" onclick="installSqlShortcut()">＋ Añadir visor a mi pantalla</button>
+    <a class="db-install-link" id="db-route-link" href="?vista=datos">Preparar acceso directo al visor SQLite</a>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -611,6 +634,7 @@ let S = { tipo:null, grano:null, maq:null, descMaq:0, descIns:0, qty:{}, ena:{},
 let SQLITE_DB = null;
 let SQL_RESULT = { columns: [], values: [] };
 let SQL_STORAGE = null;
+let installPromptEvent = null;
 
 // ─── UTILIDADES ──────────────────────────────────────────
 function pd(p, pct) { return p * (1 - pct / 100); }
@@ -1081,10 +1105,12 @@ async function initSqlite() {
     });
     useSqlExample('tabla');
     runSql();
+    if (sqliteShortcutRoute) goTab(4);
   } catch (error) {
     status.textContent = error.message || 'No se pudo abrir la base local.';
     document.getElementById('db-dot').style.background = '#ff8a80';
     document.getElementById('sql-table-wrap').innerHTML = `<div class="sql-empty">${escapeSqlHtml(status.textContent)}</div>`;
+    if (sqliteShortcutRoute) goTab(4);
   }
 }
 
@@ -1225,6 +1251,55 @@ function exportSqlCsv() {
   URL.revokeObjectURL(link.href);
 }
 
+async function installSqlShortcut() {
+  if (installPromptEvent) {
+    installPromptEvent.prompt();
+    await installPromptEvent.userChoice;
+    installPromptEvent = null;
+    return;
+  }
+  showToast(/iPhone|iPad|iPod/.test(navigator.userAgent)
+    ? 'En Safari: Compartir ↑ → Añadir a pantalla de inicio'
+    : 'Abre el menú del navegador y elige “Instalar app” o “Añadir a pantalla de inicio”');
+}
+
+function setupSqlShortcut() {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const button = document.getElementById('db-install-button');
+  const help = document.getElementById('db-install-help');
+  const routeLink = document.getElementById('db-route-link');
+  if (!sqliteShortcutRoute) {
+    button.textContent = '＋ Preparar icono directo a SQLite';
+    button.onclick = () => { window.location.href = '?vista=datos'; };
+    help.textContent = 'Abre el acceso directo especial y luego guárdalo desde el menú Compartir o del navegador.';
+  } else {
+    routeLink.hidden = true;
+    document.title = 'Visor SQLite OCS 26';
+    document.querySelector('meta[name="apple-mobile-web-app-title"]').content = 'Visor SQLite';
+    document.querySelector('link[rel="apple-touch-icon"]').href = 'icons/sqlite.svg';
+    if (isIOS) {
+      help.textContent = 'En Safari, toca Compartir ↑ y elige “Añadir a pantalla de inicio”. El icono abrirá directamente este visor.';
+      button.textContent = 'Cómo añadir el icono en Safari';
+    } else if (isAndroid) {
+      help.textContent = 'Instala este acceso directo independiente. Si no aparece el aviso, abre ⋮ y elige “Instalar app” o “Añadir a pantalla de inicio”.';
+      button.textContent = '＋ Instalar visor SQLite';
+    } else {
+      help.textContent = 'Abre este enlace en Safari (iPhone) o Chrome (Android) y usa Compartir o el menú del navegador para añadirlo a la pantalla de inicio.';
+      button.textContent = '＋ Instalar visor SQLite';
+    }
+  }
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    installPromptEvent = event;
+    if (sqliteShortcutRoute) button.textContent = '＋ Instalar visor SQLite';
+  });
+  window.addEventListener('appinstalled', () => {
+    installPromptEvent = null;
+    showToast('Visor SQLite añadido a tus aplicaciones');
+  });
+}
+
 async function saveProspect() {
   if (!SQLITE_DB) {
     showToast('La base local todavía se está preparando');
@@ -1301,6 +1376,7 @@ function setupInstallBanner() {
 // ─── INIT ─────────────────────────────────────────────────
 upd();
 setupInstallBanner();
+setupSqlShortcut();
 initSqlite();
 window.addEventListener('resize', () => {
   if (document.getElementById('p4').classList.contains('on')) drawSqlChart();

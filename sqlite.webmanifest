@@ -1,0 +1,20 @@
+{
+  "id": "./?vista=datos",
+  "name": "Visor SQLite OCS 26",
+  "short_name": "SQLite",
+  "description": "Consola y visor SQLite para prospección OCS 26",
+  "start_url": "./?vista=datos",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0F6E56",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/sqlite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

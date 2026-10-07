@@ -1,0 +1,35 @@
+{
+  "id": "./",
+  "name": "Prospección OCS 26",
+  "short_name": "OCS 26",
+  "description": "Prospección de máquinas de café",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0F6E56",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/ocs26.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Visor SQLite",
+      "short_name": "SQLite",
+      "description": "Abrir directamente el visor SQL",
+      "url": "./?vista=datos",
+      "icons": [
+        {
+          "src": "icons/sqlite.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
