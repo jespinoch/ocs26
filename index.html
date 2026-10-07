@@ -11,7 +11,10 @@
 <meta name="description" content="Prospección OCS 26 - Vendomática Lima">
 <title>Prospección OCS 26</title>
 
-<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Prospeccion%20OCS%2026%22%2C%22short_name%22%3A%22OCS%2026%22%2C%22description%22%3A%22Prospeccion%20de%20maquinas%20de%20cafe%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230F6E56%22%2C%22orientation%22%3A%22portrait%22%7D">
+<script>
+  const sqliteShortcutRoute = new URLSearchParams(location.search).get('vista') === 'datos';
+  document.write(`<link rel="manifest" href="${sqliteShortcutRoute ? 'sqlite.webmanifest' : 'app.webmanifest'}">`);
+</script>
 
 <!-- Icono como SVG inline en base64 para iOS -->
 <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMEY2RTU2Ii8+PHRleHQgeD0iOTAiIHk9IjExNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjkwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlY8L3RleHQ+PC9zdmc+">
@@ -310,6 +313,70 @@
     padding: 11px 13px; margin-bottom: 12px; font-size: 12px; color: var(--text2);
     border-left: 3px solid var(--green-light);
   }
+  .db-hero {
+    background: linear-gradient(135deg, #102d27, #0F6E56);
+    border-radius: 18px; padding: 19px; color: #fff; margin-bottom: 15px;
+    position: relative; overflow: hidden;
+  }
+  .db-hero::after {
+    content: "⌘"; position: absolute; right: 12px; top: -28px;
+    font-size: 112px; line-height: 1; color: rgba(255,255,255,.08);
+  }
+  .db-eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .72; }
+  .db-hero h2 { font-size: 22px; margin: 5px 0; }
+  .db-hero p { font-size: 12px; line-height: 1.5; opacity: .82; max-width: 260px; }
+  .db-status { display: flex; align-items: center; gap: 7px; font-size: 11px; margin-top: 13px; }
+  .db-dot { width: 7px; height: 7px; border-radius: 50%; background: #83e3b8; }
+  .sql-editor {
+    display: block; width: 100%; min-height: 146px; resize: vertical;
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    padding: 13px; background: #111b19; color: #d9f2e8;
+    font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    -webkit-appearance: none;
+  }
+  .sql-editor:focus { outline: 2px solid var(--green-light); border-color: transparent; }
+  .sql-examples { display: flex; gap: 7px; overflow-x: auto; padding: 10px 0 3px; }
+  .sql-example {
+    flex: 0 0 auto; border: 1px solid var(--border); border-radius: 18px;
+    padding: 7px 10px; background: var(--bg); color: var(--text2);
+    font-size: 11px; cursor: pointer;
+  }
+  .sql-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 8px 0 14px; }
+  .sql-actions .btn-main { margin: 0; padding: 12px; }
+  .sql-export {
+    border: 1px solid var(--border2); background: var(--bg); color: var(--text);
+    border-radius: var(--radius); padding: 0 13px; font-size: 12px; font-weight: 600;
+  }
+  .sql-result-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin: 15px 0 8px; }
+  .sql-result-title { font-size: 13px; font-weight: 700; }
+  .sql-result-meta { font-size: 10px; color: var(--text2); text-align: right; }
+  .chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px; }
+  #sql-chart { display: block; width: 100%; height: 245px; }
+  .sql-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
+  .sql-table { width: 100%; border-collapse: collapse; font-size: 11px; white-space: nowrap; }
+  .sql-table th, .sql-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+  .sql-table th { background: var(--bg2); color: var(--text2); font-size: 10px; position: sticky; top: 0; }
+  .sql-table tr:last-child td { border-bottom: 0; }
+  .sql-empty { color: var(--text2); font-size: 12px; padding: 14px 4px; }
+  .sql-note { color: var(--text2); font-size: 11px; line-height: 1.5; margin-top: 9px; }
+  .db-install-card {
+    margin-top: 18px; padding: 15px; border: 1px solid var(--green-light);
+    border-radius: var(--radius); background: var(--green-bg);
+  }
+  .db-install-card h3 { color: var(--green-dark); font-size: 14px; margin-bottom: 5px; }
+  .db-install-card p { color: var(--green-dark); font-size: 12px; line-height: 1.5; margin-bottom: 10px; }
+  .db-install-button {
+    width: 100%; border: 0; border-radius: 10px; background: var(--green);
+    color: #fff; font-size: 14px; font-weight: 600; padding: 12px; cursor: pointer;
+  }
+  .db-install-link {
+    display: block; color: var(--green-dark); font-size: 11px;
+    text-align: center; text-decoration: underline; margin-top: 10px;
+  }
+  @media (max-width: 360px) {
+    .tab { font-size: 9px; }
+    .tab .ti { font-size: 18px; }
+  }
 </style>
 
 <!-- Tabler Icons -->
@@ -341,6 +408,9 @@
   </button>
   <button class="tab" onclick="goTab(3)" id="t3">
     <i class="ti ti-file-text"></i>Cotización
+  </button>
+  <button class="tab" onclick="goTab(4)" id="t4">
+    <i class="ti ti-database"></i>Datos
   </button>
 </div>
 
@@ -472,11 +542,56 @@
     </button>
   </div>
 
+  <button class="btn-out" onclick="saveProspect()">＋ Guardar en mi base local</button>
   <button class="btn-out" onclick="confirmReset()">Nueva prospección</button>
+</div>
+
+<!-- ======================== TAB 4: SQLITE ======================== -->
+<div class="panel" id="p4">
+  <div class="db-hero">
+    <div class="db-eyebrow">Tu teléfono · Tu información</div>
+    <h2>SQLite Studio</h2>
+    <p>Una base de datos real, privada y persistente. Consulta tus prospectos y descubre patrones.</p>
+    <div class="db-status"><span class="db-dot" id="db-dot"></span><span id="db-status">Preparando tu base local…</span></div>
+  </div>
+
+  <div class="slabel">Consola SQL</div>
+  <textarea class="sql-editor" id="sql-query" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Sentencia SQL">SELECT empresa, ciudad, tazas_mes, total
+FROM prospectos
+ORDER BY total DESC;</textarea>
+  <div class="sql-examples">
+    <button class="sql-example" onclick="useSqlExample('recientes')">◷ Recientes</button>
+    <button class="sql-example" onclick="useSqlExample('consumo')">☕ Más consumo</button>
+    <button class="sql-example" onclick="useSqlExample('resumen')">↗ Resumen por tipo</button>
+    <button class="sql-example" onclick="useSqlExample('tabla')">▦ Ver tabla</button>
+  </div>
+  <div class="sql-actions">
+    <button class="btn-main" onclick="runSql()">▶ Ejecutar SQL</button>
+    <button class="sql-export" onclick="exportSqlCsv()">↓ CSV</button>
+  </div>
+
+  <div class="sql-result-head">
+    <span class="sql-result-title">Visualización</span>
+    <span class="sql-result-meta" id="sql-result-meta">Ejecuta una consulta para explorar</span>
+  </div>
+  <div class="chart-card"><canvas id="sql-chart" role="img" aria-label="Gráfico de resultados SQL"></canvas></div>
+  <div class="sql-result-head">
+    <span class="sql-result-title">Filas del resultado</span>
+    <span class="sql-result-meta" id="sql-row-count"></span>
+  </div>
+  <div class="sql-table-wrap" id="sql-table-wrap"><div class="sql-empty">Tu resultado aparecerá aquí.</div></div>
+  <p class="sql-note">Prueba <code>SELECT * FROM prospectos;</code> o guarda una cotización desde su pantalla. Los cambios se guardan en este dispositivo.</p>
+  <div class="db-install-card" id="db-install-card">
+    <h3>☕ Un icono directo a SQLite</h3>
+    <p id="db-install-help">Crea un acceso directo en la pantalla de inicio para abrir el visor sin pasar por las otras pestañas.</p>
+    <button class="db-install-button" id="db-install-button" onclick="installSqlShortcut()">＋ Añadir visor a mi pantalla</button>
+    <a class="db-install-link" id="db-route-link" href="?vista=datos">Preparar acceso directo al visor SQLite</a>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="vendor/sql-wasm.js"></script>
 <script>
 // ─── DATOS ───────────────────────────────────────────────
 const MAQUINAS = [
@@ -516,6 +631,10 @@ const CAPSULAS = [
 
 // ─── ESTADO ──────────────────────────────────────────────
 let S = { tipo:null, grano:null, maq:null, descMaq:0, descIns:0, qty:{}, ena:{}, tazas:800, colab:80, dias:20 };
+let SQLITE_DB = null;
+let SQL_RESULT = { columns: [], values: [] };
+let SQL_STORAGE = null;
+let installPromptEvent = null;
 
 // ─── UTILIDADES ──────────────────────────────────────────
 function pd(p, pct) { return p * (1 - pct / 100); }
@@ -892,6 +1011,318 @@ function doCopy() {
   }
 }
 
+// ─── BASE SQLITE LOCAL ────────────────────────────────────
+const SQL_CDN = 'vendor/';
+const SQL_EXAMPLES = {
+  recientes: `SELECT empresa, ciudad, tipo, creado
+FROM prospectos
+ORDER BY creado DESC;`,
+  consumo: `SELECT empresa, tazas_mes, total
+FROM prospectos
+ORDER BY tazas_mes DESC
+LIMIT 8;`,
+  resumen: `SELECT tipo, COUNT(*) AS prospectos, ROUND(AVG(total), 2) AS ticket_promedio
+FROM prospectos
+GROUP BY tipo
+ORDER BY ticket_promedio DESC;`,
+  tabla: 'SELECT * FROM prospectos ORDER BY id DESC;'
+};
+
+function openSqlStorage() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('ocs26-sqlite', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('databases');
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function readSqlDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = SQL_STORAGE.transaction('databases', 'readonly').objectStore('databases').get('prospectos');
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function persistSqlDatabase() {
+  return new Promise((resolve, reject) => {
+    const transaction = SQL_STORAGE.transaction('databases', 'readwrite');
+    transaction.objectStore('databases').put(SQLITE_DB.export(), 'prospectos');
+    transaction.oncomplete = resolve;
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+  });
+}
+
+function seedSqlDatabase() {
+  SQLITE_DB.run(`CREATE TABLE prospectos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    empresa TEXT NOT NULL,
+    contacto TEXT DEFAULT '',
+    telefono TEXT DEFAULT '',
+    correo TEXT DEFAULT '',
+    ciudad TEXT DEFAULT 'Lima',
+    tazas_mes INTEGER NOT NULL DEFAULT 0,
+    tipo TEXT NOT NULL DEFAULT 'cafe',
+    maquina TEXT DEFAULT '',
+    subtotal REAL NOT NULL DEFAULT 0,
+    igv REAL NOT NULL DEFAULT 0,
+    total REAL NOT NULL DEFAULT 0,
+    creado TEXT NOT NULL
+  )`);
+  const samples = [
+    ['Nébula Estudio', 'Camila Ríos', 'Lima', 1680, 'combo', 'Kometa', 948.40, 170.71, 1119.11, -1],
+    ['Casa del Olivo', 'Martín Salazar', 'Arequipa', 1240, 'cafe', 'Koro Prime', 720.00, 129.60, 849.60, -3],
+    ['Punto Norte', 'Lucía Vega', 'Trujillo', 980, 'cafe', 'Aulika Office', 636.80, 114.62, 751.42, -6],
+    ['Lumen Cowork', 'Diego Paredes', 'Cusco', 2240, 'capsula', 'LB 1150', 821.60, 147.89, 969.49, -9],
+    ['Bosque & Co.', 'Valeria León', 'Lima', 760, 'combo', 'Koro Prime', 582.20, 104.80, 687.00, -12]
+  ];
+  const insert = SQLITE_DB.prepare(`INSERT INTO prospectos
+    (empresa, contacto, ciudad, tazas_mes, tipo, maquina, subtotal, igv, total, creado)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', ?))`);
+  samples.forEach(row => insert.run([...row.slice(0, 9), `${row[9]} days`]));
+  insert.free();
+  SQLITE_DB.run('CREATE INDEX idx_prospectos_creado ON prospectos(creado)');
+}
+
+async function initSqlite() {
+  const status = document.getElementById('db-status');
+  try {
+    if (typeof initSqlJs !== 'function') throw new Error('No se pudo cargar el motor SQLite.');
+    const SQL = await initSqlJs({ locateFile: file => SQL_CDN + file });
+    if (!window.indexedDB) throw new Error('Este navegador no permite guardar la base local.');
+    SQL_STORAGE = await openSqlStorage();
+    const saved = await readSqlDatabase();
+    SQLITE_DB = saved ? new SQL.Database(new Uint8Array(saved)) : new SQL.Database();
+    if (!saved) {
+      seedSqlDatabase();
+      await persistSqlDatabase();
+    }
+    status.textContent = 'SQLite lista · guardado privado en este dispositivo';
+    document.getElementById('sql-query').addEventListener('keydown', event => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') runSql();
+    });
+    useSqlExample('tabla');
+    runSql();
+    if (sqliteShortcutRoute) goTab(4);
+  } catch (error) {
+    status.textContent = error.message || 'No se pudo abrir la base local.';
+    document.getElementById('db-dot').style.background = '#ff8a80';
+    document.getElementById('sql-table-wrap').innerHTML = `<div class="sql-empty">${escapeSqlHtml(status.textContent)}</div>`;
+    if (sqliteShortcutRoute) goTab(4);
+  }
+}
+
+function useSqlExample(name) {
+  document.getElementById('sql-query').value = SQL_EXAMPLES[name] || SQL_EXAMPLES.tabla;
+  if (SQLITE_DB) runSql();
+}
+
+async function runSql() {
+  if (!SQLITE_DB) {
+    showToast('La base local todavía se está preparando');
+    return;
+  }
+  const query = document.getElementById('sql-query').value.trim();
+  if (!query) return;
+  try {
+    const resultSets = SQLITE_DB.exec(query);
+    SQL_RESULT = resultSets.length ? resultSets[resultSets.length - 1] : { columns: [], values: [] };
+    if (SQL_RESULT.columns.length) {
+      renderSqlRows(SQL_RESULT);
+      document.getElementById('sql-result-meta').textContent = `${SQL_RESULT.values.length} filas · ${SQL_RESULT.columns.length} columnas`;
+    } else {
+      const changes = SQLITE_DB.exec('SELECT changes()')[0]?.values[0]?.[0] || 0;
+      SQL_RESULT = { columns: [], values: [] };
+      document.getElementById('sql-table-wrap').innerHTML = `<div class="sql-empty">✓ Sentencia ejecutada · ${changes} filas afectadas</div>`;
+      document.getElementById('sql-row-count').textContent = '';
+      document.getElementById('sql-result-meta').textContent = 'Cambios guardados en el dispositivo';
+    }
+    await persistSqlDatabase();
+    drawSqlChart();
+  } catch (error) {
+    SQL_RESULT = { columns: [], values: [] };
+    document.getElementById('sql-table-wrap').innerHTML = `<div class="sql-empty">⚠ ${escapeSqlHtml(error.message)}</div>`;
+    document.getElementById('sql-row-count').textContent = '';
+    document.getElementById('sql-result-meta').textContent = 'Revisa la sentencia SQL';
+    drawSqlChart();
+  }
+}
+
+function escapeSqlHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+}
+
+function sqlCellText(value) {
+  if (value === null || value === undefined) return 'NULL';
+  if (value instanceof Uint8Array) return '[BLOB]';
+  if (typeof value === 'number' && !Number.isInteger(value)) return value.toFixed(2);
+  return String(value);
+}
+
+function renderSqlRows(result) {
+  const head = result.columns.map(column => `<th>${escapeSqlHtml(column)}</th>`).join('');
+  const rows = result.values.map(row => `<tr>${row.map(value => `<td>${escapeSqlHtml(sqlCellText(value))}</td>`).join('')}</tr>`).join('');
+  document.getElementById('sql-table-wrap').innerHTML = `<table class="sql-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+  document.getElementById('sql-row-count').textContent = `${result.values.length} ${result.values.length === 1 ? 'fila' : 'filas'}`;
+}
+
+function drawSqlChart() {
+  const canvas = document.getElementById('sql-chart');
+  const width = canvas.clientWidth || 300;
+  const height = 245;
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  const context = canvas.getContext('2d');
+  context.scale(ratio, ratio);
+  const styles = getComputedStyle(document.documentElement);
+  const text = styles.getPropertyValue('--text').trim();
+  const muted = styles.getPropertyValue('--text2').trim();
+  const border = styles.getPropertyValue('--border').trim();
+  const green = styles.getPropertyValue('--green-light').trim();
+  context.fillStyle = styles.getPropertyValue('--bg').trim();
+  context.fillRect(0, 0, width, height);
+
+  const numericIndex = SQL_RESULT.columns.findIndex((column, index) =>
+    column.toLowerCase() !== 'id' && SQL_RESULT.values.some(row => typeof row[index] === 'number' && Number.isFinite(row[index]))
+  );
+  if (numericIndex < 0 || !SQL_RESULT.values.length) {
+    context.fillStyle = muted;
+    context.font = '12px sans-serif';
+    context.textAlign = 'center';
+    context.fillText(SQL_RESULT.values.length ? 'Sin columnas numéricas para graficar' : 'Ejecuta SQL para ver tus datos', width / 2, height / 2);
+    return;
+  }
+
+  const labelIndex = SQL_RESULT.columns.findIndex((column, index) => index !== numericIndex && SQL_RESULT.values.some(row => row[index] !== null));
+  const values = SQL_RESULT.values.slice(0, 6).map((row, index) => ({
+    label: labelIndex < 0 ? `Fila ${index + 1}` : sqlCellText(row[labelIndex]),
+    value: Number(row[numericIndex]) || 0
+  }));
+  const max = Math.max(...values.map(item => Math.abs(item.value)), 1);
+  const left = Math.min(130, Math.max(78, width * .34));
+  const right = 42;
+  const plotWidth = Math.max(30, width - left - right);
+  const step = 29;
+  context.fillStyle = text;
+  context.font = '600 11px sans-serif';
+  context.textAlign = 'left';
+  context.fillText(SQL_RESULT.columns[numericIndex], left, 18);
+  context.fillStyle = muted;
+  context.font = '10px sans-serif';
+  context.textAlign = 'right';
+  context.fillText(`${SQL_RESULT.values.length} filas`, width - 4, 18);
+  context.strokeStyle = border;
+  context.lineWidth = 1;
+  for (let tick = 0; tick <= 4; tick++) {
+    const x = left + plotWidth * tick / 4;
+    context.beginPath(); context.moveTo(x, 31); context.lineTo(x, height - 8); context.stroke();
+  }
+  values.forEach((item, index) => {
+    const y = 43 + index * step;
+    context.fillStyle = muted;
+    context.font = '10px sans-serif';
+    context.textAlign = 'right';
+    const label = item.label.length > 17 ? `${item.label.slice(0, 16)}…` : item.label;
+    context.fillText(label, left - 8, y + 9);
+    context.fillStyle = green;
+    context.fillRect(left, y, Math.max(2, plotWidth * Math.abs(item.value) / max), 13);
+    context.fillStyle = text;
+    context.textAlign = 'left';
+    context.fillText(sqlCellText(item.value), Math.min(width - 36, left + plotWidth * Math.abs(item.value) / max + 5), y + 10);
+  });
+}
+
+function exportSqlCsv() {
+  if (!SQL_RESULT.columns.length) {
+    showToast('Ejecuta una consulta con resultados primero');
+    return;
+  }
+  const quote = value => `"${String(value === null ? '' : sqlCellText(value)).replace(/"/g, '""')}"`;
+  const csv = [SQL_RESULT.columns, ...SQL_RESULT.values].map(row => row.map(quote).join(',')).join('\r\n');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+  link.download = 'ocs26-resultados.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function installSqlShortcut() {
+  if (installPromptEvent) {
+    installPromptEvent.prompt();
+    await installPromptEvent.userChoice;
+    installPromptEvent = null;
+    return;
+  }
+  showToast(/iPhone|iPad|iPod/.test(navigator.userAgent)
+    ? 'En Safari: Compartir ↑ → Añadir a pantalla de inicio'
+    : 'Abre el menú del navegador y elige “Instalar app” o “Añadir a pantalla de inicio”');
+}
+
+function setupSqlShortcut() {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const button = document.getElementById('db-install-button');
+  const help = document.getElementById('db-install-help');
+  const routeLink = document.getElementById('db-route-link');
+  if (!sqliteShortcutRoute) {
+    button.textContent = '＋ Preparar icono directo a SQLite';
+    button.onclick = () => { window.location.href = '?vista=datos'; };
+    help.textContent = 'Abre el acceso directo especial y luego guárdalo desde el menú Compartir o del navegador.';
+  } else {
+    routeLink.hidden = true;
+    document.title = 'Visor SQLite OCS 26';
+    document.querySelector('meta[name="apple-mobile-web-app-title"]').content = 'Visor SQLite';
+    document.querySelector('link[rel="apple-touch-icon"]').href = 'icons/sqlite.svg';
+    if (isIOS) {
+      help.textContent = 'En Safari, toca Compartir ↑ y elige “Añadir a pantalla de inicio”. El icono abrirá directamente este visor.';
+      button.textContent = 'Cómo añadir el icono en Safari';
+    } else if (isAndroid) {
+      help.textContent = 'Instala este acceso directo independiente. Si no aparece el aviso, abre ⋮ y elige “Instalar app” o “Añadir a pantalla de inicio”.';
+      button.textContent = '＋ Instalar visor SQLite';
+    } else {
+      help.textContent = 'Abre este enlace en Safari (iPhone) o Chrome (Android) y usa Compartir o el menú del navegador para añadirlo a la pantalla de inicio.';
+      button.textContent = '＋ Instalar visor SQLite';
+    }
+  }
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    installPromptEvent = event;
+    if (sqliteShortcutRoute) button.textContent = '＋ Instalar visor SQLite';
+  });
+  window.addEventListener('appinstalled', () => {
+    installPromptEvent = null;
+    showToast('Visor SQLite añadido a tus aplicaciones');
+  });
+}
+
+async function saveProspect() {
+  if (!SQLITE_DB) {
+    showToast('La base local todavía se está preparando');
+    return;
+  }
+  const { maq, sinIgv, igv, conIgv } = getTotales();
+  try {
+    SQLITE_DB.run(`INSERT INTO prospectos
+      (empresa, contacto, telefono, correo, ciudad, tazas_mes, tipo, maquina, subtotal, igv, total, creado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+      document.getElementById('f_empresa').value.trim() || 'Cliente',
+      document.getElementById('f_contacto').value.trim(),
+      document.getElementById('f_tel').value.trim(),
+      document.getElementById('f_email').value.trim(),
+      'Lima', S.tazas, S.tipo || 'sin definir', maq ? maq.n : '', sinIgv, igv, conIgv, new Date().toISOString()
+    ]);
+    await persistSqlDatabase();
+    showToast('Cotización guardada en tu SQLite local');
+  } catch (error) {
+    showToast(`No se pudo guardar: ${error.message}`);
+  }
+}
+
 // ─── NAVEGACIÓN ───────────────────────────────────────────
 function goTab(n) {
   if (n === 1) renderMaq();
@@ -900,6 +1331,7 @@ function goTab(n) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach((t, i) => { t.classList.remove('on'); if (i === n) t.classList.add('on'); });
   document.getElementById('p' + n).classList.add('on');
+  if (n === 4) requestAnimationFrame(drawSqlChart);
   window.scrollTo(0, 0);
 }
 
@@ -944,11 +1376,16 @@ function setupInstallBanner() {
 // ─── INIT ─────────────────────────────────────────────────
 upd();
 setupInstallBanner();
+setupSqlShortcut();
+initSqlite();
+window.addEventListener('resize', () => {
+  if (document.getElementById('p4').classList.contains('on')) drawSqlChart();
+});
 </script>
 
 <style>
 @media print {
-  .topbar, .tabbar, #p0, #p1, #p2, .share-grid, .btn-main, .btn-out, .install-banner { display: none !important; }
+  .topbar, .tabbar, #p0, #p1, #p2, #p4, .share-grid, .btn-main, .btn-out, .install-banner { display: none !important; }
   #p3 { display: block !important; padding: 20px; }
   body { background: #fff; color: #000; }
   .cot-block { background: #f5f5f5 !important; border: 1px solid #ddd; break-inside: avoid; margin-bottom: 12px; }
