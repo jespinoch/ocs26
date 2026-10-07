@@ -13,3 +13,12 @@ ORDER BY total DESC;
 ```
 
 Abre la aplicación desde un sitio HTTPS o un servidor local para que el navegador permita almacenamiento persistente. El motor SQLite se incluye en `vendor/` para que la consola no dependa de una CDN. Su licencia está en `vendor/sql.js.LICENSE`.
+
+## Icono directo al visor SQLite
+
+Desde la pestaña **Datos**, pulsa **Preparar icono directo a SQLite**. En la página que se abre:
+
+- **iPhone/iPad:** en Safari, toca **Compartir → Añadir a pantalla de inicio**.
+- **Android:** pulsa **Instalar visor SQLite**; si no aparece la opción, abre el menú de Chrome y elige **Instalar app** o **Añadir a pantalla de inicio**.
+
+El acceso directo se abre directamente en el visor. El navegador requiere que confirmes la instalación desde el teléfono.
