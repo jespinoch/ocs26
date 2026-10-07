@@ -310,6 +310,56 @@
     padding: 11px 13px; margin-bottom: 12px; font-size: 12px; color: var(--text2);
     border-left: 3px solid var(--green-light);
   }
+  .db-hero {
+    background: linear-gradient(135deg, #102d27, #0F6E56);
+    border-radius: 18px; padding: 19px; color: #fff; margin-bottom: 15px;
+    position: relative; overflow: hidden;
+  }
+  .db-hero::after {
+    content: "⌘"; position: absolute; right: 12px; top: -28px;
+    font-size: 112px; line-height: 1; color: rgba(255,255,255,.08);
+  }
+  .db-eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; opacity: .72; }
+  .db-hero h2 { font-size: 22px; margin: 5px 0; }
+  .db-hero p { font-size: 12px; line-height: 1.5; opacity: .82; max-width: 260px; }
+  .db-status { display: flex; align-items: center; gap: 7px; font-size: 11px; margin-top: 13px; }
+  .db-dot { width: 7px; height: 7px; border-radius: 50%; background: #83e3b8; }
+  .sql-editor {
+    display: block; width: 100%; min-height: 146px; resize: vertical;
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    padding: 13px; background: #111b19; color: #d9f2e8;
+    font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    -webkit-appearance: none;
+  }
+  .sql-editor:focus { outline: 2px solid var(--green-light); border-color: transparent; }
+  .sql-examples { display: flex; gap: 7px; overflow-x: auto; padding: 10px 0 3px; }
+  .sql-example {
+    flex: 0 0 auto; border: 1px solid var(--border); border-radius: 18px;
+    padding: 7px 10px; background: var(--bg); color: var(--text2);
+    font-size: 11px; cursor: pointer;
+  }
+  .sql-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 8px 0 14px; }
+  .sql-actions .btn-main { margin: 0; padding: 12px; }
+  .sql-export {
+    border: 1px solid var(--border2); background: var(--bg); color: var(--text);
+    border-radius: var(--radius); padding: 0 13px; font-size: 12px; font-weight: 600;
+  }
+  .sql-result-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin: 15px 0 8px; }
+  .sql-result-title { font-size: 13px; font-weight: 700; }
+  .sql-result-meta { font-size: 10px; color: var(--text2); text-align: right; }
+  .chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px; }
+  #sql-chart { display: block; width: 100%; height: 245px; }
+  .sql-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); }
+  .sql-table { width: 100%; border-collapse: collapse; font-size: 11px; white-space: nowrap; }
+  .sql-table th, .sql-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+  .sql-table th { background: var(--bg2); color: var(--text2); font-size: 10px; position: sticky; top: 0; }
+  .sql-table tr:last-child td { border-bottom: 0; }
+  .sql-empty { color: var(--text2); font-size: 12px; padding: 14px 4px; }
+  .sql-note { color: var(--text2); font-size: 11px; line-height: 1.5; margin-top: 9px; }
+  @media (max-width: 360px) {
+    .tab { font-size: 9px; }
+    .tab .ti { font-size: 18px; }
+  }
 </style>
 
 <!-- Tabler Icons -->
@@ -341,6 +391,9 @@
   </button>
   <button class="tab" onclick="goTab(3)" id="t3">
     <i class="ti ti-file-text"></i>Cotización
+  </button>
+  <button class="tab" onclick="goTab(4)" id="t4">
+    <i class="ti ti-database"></i>Datos
   </button>
 </div>
 
@@ -472,11 +525,50 @@
     </button>
   </div>
 
+  <button class="btn-out" onclick="saveProspect()">＋ Guardar en mi base local</button>
   <button class="btn-out" onclick="confirmReset()">Nueva prospección</button>
+</div>
+
+<!-- ======================== TAB 4: SQLITE ======================== -->
+<div class="panel" id="p4">
+  <div class="db-hero">
+    <div class="db-eyebrow">Tu teléfono · Tu información</div>
+    <h2>SQLite Studio</h2>
+    <p>Una base de datos real, privada y persistente. Consulta tus prospectos y descubre patrones.</p>
+    <div class="db-status"><span class="db-dot" id="db-dot"></span><span id="db-status">Preparando tu base local…</span></div>
+  </div>
+
+  <div class="slabel">Consola SQL</div>
+  <textarea class="sql-editor" id="sql-query" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Sentencia SQL">SELECT empresa, ciudad, tazas_mes, total
+FROM prospectos
+ORDER BY total DESC;</textarea>
+  <div class="sql-examples">
+    <button class="sql-example" onclick="useSqlExample('recientes')">◷ Recientes</button>
+    <button class="sql-example" onclick="useSqlExample('consumo')">☕ Más consumo</button>
+    <button class="sql-example" onclick="useSqlExample('resumen')">↗ Resumen por tipo</button>
+    <button class="sql-example" onclick="useSqlExample('tabla')">▦ Ver tabla</button>
+  </div>
+  <div class="sql-actions">
+    <button class="btn-main" onclick="runSql()">▶ Ejecutar SQL</button>
+    <button class="sql-export" onclick="exportSqlCsv()">↓ CSV</button>
+  </div>
+
+  <div class="sql-result-head">
+    <span class="sql-result-title">Visualización</span>
+    <span class="sql-result-meta" id="sql-result-meta">Ejecuta una consulta para explorar</span>
+  </div>
+  <div class="chart-card"><canvas id="sql-chart" role="img" aria-label="Gráfico de resultados SQL"></canvas></div>
+  <div class="sql-result-head">
+    <span class="sql-result-title">Filas del resultado</span>
+    <span class="sql-result-meta" id="sql-row-count"></span>
+  </div>
+  <div class="sql-table-wrap" id="sql-table-wrap"><div class="sql-empty">Tu resultado aparecerá aquí.</div></div>
+  <p class="sql-note">Prueba <code>SELECT * FROM prospectos;</code> o guarda una cotización desde su pantalla. Los cambios se guardan en este dispositivo.</p>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 <script>
 // ─── DATOS ───────────────────────────────────────────────
 const MAQUINAS = [
@@ -516,6 +608,9 @@ const CAPSULAS = [
 
 // ─── ESTADO ──────────────────────────────────────────────
 let S = { tipo:null, grano:null, maq:null, descMaq:0, descIns:0, qty:{}, ena:{}, tazas:800, colab:80, dias:20 };
+let SQLITE_DB = null;
+let SQL_RESULT = { columns: [], values: [] };
+let SQL_STORAGE = null;
 
 // ─── UTILIDADES ──────────────────────────────────────────
 function pd(p, pct) { return p * (1 - pct / 100); }
