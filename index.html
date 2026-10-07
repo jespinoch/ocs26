@@ -568,7 +568,7 @@ ORDER BY total DESC;</textarea>
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+<script src="vendor/sql-wasm.js"></script>
 <script>
 // ─── DATOS ───────────────────────────────────────────────
 const MAQUINAS = [
@@ -988,7 +988,7 @@ function doCopy() {
 }
 
 // ─── BASE SQLITE LOCAL ────────────────────────────────────
-const SQL_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/';
+const SQL_CDN = 'vendor/';
 const SQL_EXAMPLES = {
   recientes: `SELECT empresa, ciudad, tipo, creado
 FROM prospectos
